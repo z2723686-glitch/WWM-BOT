@@ -1,0 +1,68 @@
+{
+  "timezone": "Asia/Dhaka",
+  "channel_id": "1473521726569844858",
+  "events": {
+    "guild_war": {
+      "name": "Guild War Event",
+      "enabled": true,
+      "schedule": [
+        {
+          "day": "saturday",
+          "time": "18:30"
+        },
+        {
+          "day": "sunday",
+          "time": "18:30"
+        }
+      ],
+      "message": "**📢 GUILD WAR শুরু — Wind Hunted 📢**\n\nপ্রিয় গিল্ড মেম্বারগণ, <@&1520713679509782548> @everyone আপনাদের জানানো হচ্ছে যে আজকের Guild War শুরু হয়ে গেছে।\n\n🔴 যারা এখনো প্রবেশ করেননি, তারা দ্রুত Guild War-এ যোগ দিন এবং নির্ধারিত পজিশনে অবস্থান নিন।\n\nসবাই সক্রিয়ভাবে অংশগ্রহণ করুন এবং টিমের সাথে সমন্বয় রেখে খেলুন।\n\nআপনাদের সক্রিয় উপস্থিতি গিল্ডের জয়ের জন্য অত্যন্ত গুরুত্বপূর্ণ।\n\n**ধন্যবাদান্তে,**\n**Wind Hunted Management**"
+    },
+    "guild_showdown": {
+      "name": "Guild Showdown Event",
+      "enabled": true,
+      "schedule": [
+        {
+          "day": "thursday",
+          "time": "18:30"
+        },
+        {
+          "day": "sunday",
+          "time": "18:30"
+        }
+      ],
+      "message": "**⚔️ GUILD SHOWDOWN ঘোষণা ⚔️**\n\n**ইভেন্ট:** Arena 1v1\n**সময়:** শুরু হয়েছে — বাকি আছে 90 মিনিট\n**স্থান:** Guild Base\n\nসকল সদস্যকে দ্রুত গেমে এসে Guild Base-এ উপস্থিত থাকার জন্য অনুরোধ করা হচ্ছে।\n\n🙏 ধন্যবাদ।\n\n<@&1520713679509782548> @everyone"
+    },
+    "breaking_army": {
+      "name": "Breaking Army Event",
+      "enabled": true,
+      "schedule": [
+        {
+          "day": "wednesday",
+          "time": "18:30"
+        },
+        {
+          "day": "saturday",
+          "time": "18:30"
+        }
+      ],
+      "message": "**🚨 BREAKING ARMY EVENT শুরু হয়েছে! 🚨**\n\nসকলকে অনুরোধ, গেমে লগইন করুন এবং Guild Events-এ অংশ নিয়ে Breaking Army Event সম্পন্ন করুন।\n\n<@&1520713679509782548> @everyone"
+    },
+    "weekly_guild_activities": {
+      "name": "Weekly Guild Activities",
+      "enabled": true,
+      "schedule": [
+        {
+          "day": "monday",
+          "time": "13:00"
+        }
+      ],
+      "message": "**📢 WHERE WINDS MEET - WEEKLY GUILD ACTIVITIES! 📢**\n\nHey @everyone <@&1520713679509782548>,\n\nআজ Monday (সোমবার), তাই সবার জন্য কিছু গুরুত্বপূর্ণ গিল্ড টাস্ক রয়েছে যা আজই সম্পন্ন করা প্রয়োজন।\n\n**🏰 Guild Base & Transporter:**\nসবাই গিল্ড বেসে যান এবং Guild Transporter মিশনটি সম্পন্ন করে নিন। যদি কোনো সমস্যা হয়, তাহলে গিল্ডের এক্সপার্ট <@&1504915896706269367> ভাইদের সাহায্য নিয়ে অবশ্যই এটি শেষ করবেন।\n\n**☯️ Dual Cultivation:**\nআজকের মধ্যে সবাই আপনাদের Dual Cultivation-ও সম্পূর্ণ করে নিবেন।\n\nসবাই দ্রুত এই কাজগুলো শেষ করে গিল্ডকে এগিয়ে নিতে সাহায্য করুন! ধন্যবাদ। 🌪✨"
+    },
+    "guild_party": {
+      "name": "Guild Party",
+      "enabled": true,
+      "schedule": [],
+      "message": "*📢 Guild Party ঘোষণা*\n\n*সময়:* {time}\n*স্থান:* Guild Base\n\nসকল <@&1520713679509782548> সদস্যকে নির্ধারিত সময়ে Guild Base-এ উপস্থিত থাকার জন্য অনুরোধ করা হচ্ছে।"
+    }
+  }
+}
