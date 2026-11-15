@@ -61,6 +61,7 @@ class WWMBot(commands.Bot):
             "cogs.events",
             "cogs.guild_join",
             "cogs.binding",
+            "cogs.automod",
         ]
 
     async def setup_hook(self):
