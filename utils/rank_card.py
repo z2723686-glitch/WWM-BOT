@@ -64,7 +64,7 @@ _STATUS_DEFAULTS = {
     "invisible": STATUS_OFFLINE,
 }
 
-BG_URL = "https://i.ibb.co/1f6rj5Rx/b67f5d4399.jpg"
+BG_URL = "https://i.ibb.co/9knbdkvb/ee434177aa.jpg"
 MAX_IMAGE_BYTES = 15 * 1024 * 1024
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
