@@ -25,7 +25,7 @@ class Database:
         self.client: AsyncIOMotorClient = None
         self.db = None
 
-        # Collection references (set after connect)
+        
         self.users = None
         self.guild_settings = None
         self.role_rewards = None
@@ -39,26 +39,27 @@ class Database:
         self.guild_applications = None
         self.bound_accounts    = None
         self.giveaways         = None
+        self.automod_settings  = None
 
     async def connect(self):
-        """Connect to MongoDB and initialize all collections."""
+        
         try:
             self.client = AsyncIOMotorClient(
                 Config.MONGO_URI,
                 serverSelectionTimeoutMS=10000,
                 connectTimeoutMS=10000,
                 socketTimeoutMS=10000,
-                maxPoolSize=50,      # Connection pool for performance
+                maxPoolSize=50,     
                 minPoolSize=5,
                 retryWrites=True,
             )
 
-            # Test connection
+           
             await self.client.admin.command("ping")
 
             self.db = self.client[Config.DB_NAME]
 
-            # Initialize all collections
+           
             self.users = self.db["users"]
             self.guild_settings = self.db["guild_settings"]
             self.role_rewards = self.db["role_rewards"]
@@ -72,6 +73,7 @@ class Database:
             self.guild_applications = self.db["guild_applications"]
             self.bound_accounts     = self.db["bound_accounts"]
             self.giveaways          = self.db["giveaways"]
+            self.automod_settings   = self.db["automod_settings"]
 
             # Create optimized indexes
             await self._create_indexes()
@@ -150,6 +152,12 @@ class Database:
             await self.admin_logs.create_indexes([
                 IndexModel([("guild_id", ASCENDING), ("timestamp", DESCENDING)]),
                 IndexModel([("action_by", ASCENDING)]),
+            ])
+            
+            # AutoMod settings (one document per guild)
+
+            await self.automod_settings.create_indexes([
+                IndexModel([("guild_id", ASCENDING)], unique=True),
             ])
 
             logger.info("✅ Database indexes created successfully")
@@ -322,3 +330,23 @@ class Database:
             "reason": reason,
             "timestamp": datetime.utcnow()
         })
+        
+        # AUTOMOD (slang & link moderation) OPERATIONS
+        
+        async def get_automod_settings(self, guild_id: str) -> dict:
+        """Get a guild's AutoMod settings (empty defaults if none saved yet)."""
+        doc = await self.automod_settings.find_one({"guild_id": guild_id})
+        return doc or {
+            "guild_id": guild_id,
+            "channels": {},
+            "whitelist": [],
+            "custom_slang": [],
+            "removed_slang": [],
+            "warn_on_violation": False,
+        }
+
+    async def update_automod_settings(self, guild_id: str, ops: dict) -> None:
+        """Apply raw MongoDB update operators ($set, $unset, $addToSet, $pull)."""
+        await self.automod_settings.update_one(
+            {"guild_id": guild_id}, ops, upsert=True
+        )
