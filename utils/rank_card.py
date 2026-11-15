@@ -549,7 +549,7 @@ def _render(bg_img, av_img, username, level, current_xp, needed_xp,
     cvs.alpha_composite(blyr)
 
     # ── Watermark ─────────────────────────────────────────────────────────
-    _faint_text(cvs, BAR_X + BAR_W, CY2 - 10 * S, "WIND HUNTED UNIVERSE",
+    _faint_text(cvs, BAR_X + BAR_W, CY2 - 10 * S, "WIND HUNTED",
                 _font("medium", 10), DIM, 92, tracking=int(1.8 * S))
 
     # ── Avatar + thin dark ring ───────────────────────────────────────────
