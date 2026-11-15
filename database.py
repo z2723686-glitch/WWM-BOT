@@ -331,9 +331,11 @@ class Database:
             "timestamp": datetime.utcnow()
         })
         
-        # AUTOMOD (slang & link moderation) OPERATIONS
-        
-        async def get_automod_settings(self, guild_id: str) -> dict:
+    # ─────────────────────────────────────────
+    # AUTOMOD (slang & link moderation) OPERATIONS
+    # ─────────────────────────────────────────
+
+    async def get_automod_settings(self, guild_id: str) -> dict:
         """Get a guild's AutoMod settings (empty defaults if none saved yet)."""
         doc = await self.automod_settings.find_one({"guild_id": guild_id})
         return doc or {
