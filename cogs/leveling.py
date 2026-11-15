@@ -277,7 +277,7 @@ class Leveling(commands.Cog):
                 file  = discord.File(buf, filename="rank_{}.png".format(uid))
                 embed = discord.Embed(color=Config.COLOR_PRIMARY)
                 embed.set_image(url="attachment://rank_{}.png".format(uid))
-                embed.set_footer(text="Where Winds Meet")
+                embed.set_footer(text="")
                 await ctx.send(embed=embed, file=file)
 
             except Exception as e:
