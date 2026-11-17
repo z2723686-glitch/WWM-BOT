@@ -34,6 +34,7 @@ class WWMBot(commands.Bot):
         intents.reactions        = True
         intents.voice_states     = True
         intents.guilds           = True
+        intents.invites          = True
 
         super().__init__(
             command_prefix=Config.PREFIX,
@@ -62,6 +63,7 @@ class WWMBot(commands.Bot):
             "cogs.guild_join",
             "cogs.binding",
             "cogs.automod",
+            "cogs.referral",
         ]
 
     async def setup_hook(self):
