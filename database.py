@@ -41,6 +41,24 @@ class Database:
         self.giveaways         = None
         self.automod_settings  = None
 
+        # Referral / points / lucky draw (independent from XP)
+        self.referral_users        = None
+        self.referral_invites      = None
+        self.referrals             = None
+        self.reward_transactions   = None
+        self.chat_reward_claims    = None
+        self.points_draws          = None
+        self.points_draw_entries   = None
+        self.points_prizes         = None
+        self.points_prize_winners  = None
+        self.referral_audit_logs   = None
+        self.schema_migrations     = None
+        self.referral_config       = None
+
+        # Set during connect(): see _run_reward_migrations / _detect_transactions
+        self.rewards_ready: bool          = False
+        self.supports_transactions: bool  = False
+
     async def connect(self):
         
         try:
@@ -75,8 +93,25 @@ class Database:
             self.giveaways          = self.db["giveaways"]
             self.automod_settings   = self.db["automod_settings"]
 
+            self.referral_users       = self.db["referral_users"]
+            self.referral_invites     = self.db["referral_invites"]
+            self.referrals            = self.db["referrals"]
+            self.reward_transactions  = self.db["reward_transactions"]
+            self.chat_reward_claims   = self.db["chat_reward_claims"]
+            self.points_draws         = self.db["points_draws"]
+            self.points_draw_entries  = self.db["points_draw_entries"]
+            self.points_prizes        = self.db["points_prizes"]
+            self.points_prize_winners = self.db["points_prize_winners"]
+            self.referral_audit_logs  = self.db["referral_audit_logs"]
+            self.schema_migrations    = self.db["schema_migrations"]
+            self.referral_config      = self.db["referral_config"]
+
             # Create optimized indexes
             await self._create_indexes()
+
+            # Versioned migrations for the reward system (additive only)
+            await self._run_reward_migrations()
+            await self._detect_transactions()
 
             logger.info(f"✅ Connected to MongoDB: {Config.DB_NAME}")
 
@@ -164,6 +199,38 @@ class Database:
 
         except Exception as e:
             logger.error(f"❌ Error creating indexes: {e}")
+
+    async def _run_reward_migrations(self):
+        """
+        Run pending reward-system migrations. A failure here must NOT stop the
+        bot: existing features keep working and the referral cog simply refuses
+        to load (db.rewards_ready stays False).
+        """
+        try:
+            from utils.reward_migrations import run_pending_migrations
+            result = await run_pending_migrations(self.db)
+            self.rewards_ready = not result["failed"]
+            if result["applied"]:
+                logger.info("Reward migrations applied: %s", ", ".join(result["applied"]))
+            if result["failed"]:
+                logger.error("Reward migrations failed: %s", ", ".join(result["failed"]))
+        except Exception as e:
+            self.rewards_ready = False
+            logger.error("Reward migrations could not run: %s", e)
+
+    async def _detect_transactions(self):
+        """
+        Detect whether this deployment supports multi-document transactions
+        (replica set or sharded cluster). Informational: the reward ledger is
+        designed to be safe on a standalone server as well.
+        """
+        try:
+            info = await self.client.admin.command("hello")
+            self.supports_transactions = bool(info.get("setName") or info.get("msg") == "isdbgrid")
+        except Exception as e:
+            self.supports_transactions = False
+            logger.warning("Could not detect MongoDB topology: %s", e)
+        logger.info("MongoDB transactions available: %s", self.supports_transactions)
 
     async def close(self):
         """Close the database connection gracefully."""
