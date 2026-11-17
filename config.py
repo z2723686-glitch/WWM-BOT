@@ -6,9 +6,57 @@ All values can be overridden via environment variables.
 """
 
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+_cfg_log = logging.getLogger("wwm.config")
+CONFIG_WARNINGS: list = []
+
+
+def _env_int(name: str, default: int, minimum: int = 0, maximum: int = 10**9) -> int:
+    """Read an int env var; fall back to `default` (and remember a warning) if invalid."""
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        value = int(raw.strip())
+    except ValueError:
+        CONFIG_WARNINGS.append("{}={!r} is not a number - using {}".format(name, raw, default))
+        return default
+    if value < minimum or value > maximum:
+        CONFIG_WARNINGS.append("{}={} out of range [{}, {}] - using {}".format(
+            name, value, minimum, maximum, default))
+        return default
+    return value
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    value = raw.strip().lower()
+    if value in ("1", "true", "yes", "on"):
+        return True
+    if value in ("0", "false", "no", "off"):
+        return False
+    CONFIG_WARNINGS.append("{}={!r} is not a boolean - using {}".format(name, raw, default))
+    return default
+
+
+def _env_id_list(name: str) -> list:
+    """Comma separated Discord IDs; invalid entries are skipped with a warning."""
+    out = []
+    for part in os.getenv(name, "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if part.isdigit():
+            out.append(int(part))
+        else:
+            CONFIG_WARNINGS.append("{} contains invalid ID {!r} - skipped".format(name, part))
+    return out
 
 
 class Config:
@@ -88,6 +136,21 @@ class Config:
     GIVEAWAY_CHANNEL: int = int(os.getenv("GIVEAWAY_CHANNEL", "0"))
 
     # ─────────────────────────────────────────
+    # REFERRAL / POINTS / LUCKY DRAW  (independent from XP)
+    # Per-server values can be overridden with /referral config.
+    # ─────────────────────────────────────────
+    REFERRAL_ENABLED: bool = _env_bool("REFERRAL_ENABLED", True)
+    REFERRAL_POINTS: int = _env_int("REFERRAL_POINTS", 3, 0, 1000)
+    CHAT_REWARD_POINTS: int = _env_int("CHAT_REWARD_POINTS", 1, 0, 1000)
+    MIN_ACCOUNT_AGE_DAYS: int = _env_int("MIN_ACCOUNT_AGE_DAYS", 7, 0, 3650)
+    REFERRAL_CHANNEL_IDS: list = _env_id_list("REFERRAL_CHANNEL_IDS")
+    REFERRAL_ANNOUNCEMENT_CHANNEL_ID: int = _env_int("REFERRAL_ANNOUNCEMENT_CHANNEL_ID", 0)
+    REFERRAL_INVITE_CHANNEL_ID: int = _env_int("REFERRAL_INVITE_CHANNEL_ID", 0)
+    REFERRAL_ADMIN_ROLE_IDS: list = _env_id_list("REFERRAL_ADMIN_ROLE_IDS")
+    REFERRAL_DEFAULT_CAMPAIGN: str = os.getenv("REFERRAL_DEFAULT_CAMPAIGN", "").strip()
+    MAX_DRAW_ENTRIES_PER_REQUEST: int = _env_int("MAX_DRAW_ENTRIES_PER_REQUEST", 10, 1, 100)
+
+    # ─────────────────────────────────────────
     # WEB DASHBOARD SETTINGS
     # ─────────────────────────────────────────
     DASHBOARD_HOST: str = os.getenv("DASHBOARD_HOST", "0.0.0.0")
@@ -155,6 +218,16 @@ class Config:
     # ─────────────────────────────────────────
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     LOG_FILE: str = "wwm_bot.log"
+
+    @classmethod
+    def validate_referral(cls) -> list:
+        """Startup validation for the reward system. Returns a list of problems."""
+        problems = list(CONFIG_WARNINGS)
+        if not cls.MONGO_URI:
+            problems.append("MONGO_URI is empty")
+        if not cls.DB_NAME:
+            problems.append("DB_NAME is empty")
+        return problems
 
     @classmethod
     def get_invite_url(cls) -> str:
